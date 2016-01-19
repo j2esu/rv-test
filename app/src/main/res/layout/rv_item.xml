@@ -1,18 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:background="#c6c3c3"
-	android:padding="32dp">
+	>
 
 	<TextView
-		android:id="@+id/rv_item_text"
+		android:id="@+id/rv_item_menu"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		tools:text="Text"
+		android:layout_height="match_parent"
+		android:background="#c6c3c3"
+		android:gravity="center"
+		android:text="Menu"
 		/>
 
-</LinearLayout>
+	<FrameLayout
+		android:id="@+id/rv_item_top_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="#333"
+		android:padding="32dp"
+		tools:visibility="invisible">
+
+		<TextView
+			android:id="@+id/rv_item_text"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			tools:text="Text"
+			/>
+
+	</FrameLayout>
+
+
+
+</FrameLayout>
