@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -44,23 +43,22 @@ public class SwipeTouchListener extends RecyclerView.SimpleOnItemTouchListener {
 
 	@Override
 	public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent ev) {
-		final int action = MotionEventCompat.getActionMasked(ev);
+		int action = MotionEventCompat.getActionMasked(ev);
 		switch (action) {
 			case MotionEvent.ACTION_MOVE: {
-				if (mSwipe) return true;//handle event by item
+				if (mSwipe) return true;//handle by item
 				if (mScroll) return false;//handle event by recycler view
 				//if no current scroll or swipe
 				float dx = Math.abs(downX - ev.getX());
 				float dy = Math.abs(downY - ev.getY());
-				if (dx > mTouchSlop && dx > dy) {
+				if (dx > mTouchSlop && dx > dy) {//detect swipe
 					mSwipe = true;
 					mVelocityTracker.clear();
 					mSwipeView = rv.findChildViewUnder(downX, downY);
-					return true;
+					return true;//handle by item
 				}
-				if (dy > mTouchSlop && dy >= dx) {
+				if (dy > mTouchSlop && dy >= dx) {//detect scroll
 					mScroll = true;
-					return false;
 				}
 				return false;
 			}
@@ -68,31 +66,38 @@ public class SwipeTouchListener extends RecyclerView.SimpleOnItemTouchListener {
 				downX = ev.getX();
 				downY = ev.getY();
 				return false;
-//				break;
-			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP:
-
-				break;
-
+			case MotionEvent.ACTION_CANCEL:
+				mScroll = false;
+				return false;
+			default:
+				return false;
 		}
-		//if were swiping
-		if (mSwipe) {
-			mVelocityTracker.computeCurrentVelocity(1000);
-			float vx = VelocityTrackerCompat.getXVelocity(mVelocityTracker, 0);
-//			mCallback.onFlingSwipe(mSwipeView, ev.getX() - downX >);
-			Log.d(TAG, "onInterceptTouchEvent: " + vx);
-			mSwipe = false;
-			mSwipeView = null;
-		}
-		mScroll = false;
-		return false;
 	}
 
 	@Override
 	public void onTouchEvent(RecyclerView rv, MotionEvent ev) {
-		mVelocityTracker.addMovement(ev);
-		if (mSwipe && mSwipeView != null)
-		mCallback.onDragSwipe(mSwipeView, ev.getX() - downX);
+		int action = MotionEventCompat.getActionMasked(ev);
+		switch (action) {
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_CANCEL:
+				if (mSwipe) {//if were swiping
+					mVelocityTracker.computeCurrentVelocity(1000);
+					float vx = VelocityTrackerCompat.getXVelocity(mVelocityTracker, 0);
+//					mCallback.onFlingSwipe(mSwipeView, ev.getX() - downX >);
+					mSwipe = false;
+					mSwipeView = null;
+				}
+				break;
+			case MotionEvent.ACTION_MOVE://this runs if swiping
+				mVelocityTracker.addMovement(ev);
+				if (mSwipeView != null) {
+					mCallback.onDragSwipe(mSwipeView, ev.getX() - downX);
+				}
+				break;
+		}
+
+
 	}
 
 }
