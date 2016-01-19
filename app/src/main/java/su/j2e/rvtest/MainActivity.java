@@ -1,5 +1,6 @@
 package su.j2e.rvtest;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,24 @@ public class MainActivity extends AppCompatActivity implements SwipeTouchListene
 
 	@Override
 	public void onDragSwipe(View view, float dx) {
-		view.setTranslationX(dx);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			view.setTranslationX(dx);
+		}
+	}
+
+	@Override
+	public void onFlingSwipe(View view, float dx, float vx) {
+		if (vx > 5000) {
+			view.animate().translationX(view.getWidth()).setDuration(1000).start();
+		} else if (vx < -5000) {
+			view.animate().translationX(-view.getWidth()).setDuration(1000).start();
+		} else {
+			view.animate().translationX(0).setDuration(1000).start();
+		}
+	}
+
+	@Override
+	public void onCancelSwipe(View view, float dx) {
+
 	}
 }

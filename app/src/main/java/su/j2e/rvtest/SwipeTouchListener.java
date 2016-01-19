@@ -11,17 +11,15 @@ import android.view.ViewConfiguration;
 
 public class SwipeTouchListener extends RecyclerView.SimpleOnItemTouchListener {
 
-	private static final int SWIPE_DIR_RIGHT = 0;
-	private static final int SWIPE_DIR_LEFT = 1;
 	private static final String TAG = SwipeTouchListener.class.getName();
 
 	public interface Callback {
 
 		void onDragSwipe(View view, float dx);
 
-//		void onFlingSwipe(View view, int dir);
-//
-//		void onCancelSwipe(View view, float dx);
+		void onFlingSwipe(View view, float dx, float vx);
+
+		void onCancelSwipe(View view, float dx);
 
 	}
 
@@ -80,24 +78,24 @@ public class SwipeTouchListener extends RecyclerView.SimpleOnItemTouchListener {
 		int action = MotionEventCompat.getActionMasked(ev);
 		switch (action) {
 			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_CANCEL:
-				if (mSwipe) {//if were swiping
+				if (mSwipe && mSwipeView != null) {//if were swiping
 					mVelocityTracker.computeCurrentVelocity(1000);
 					float vx = VelocityTrackerCompat.getXVelocity(mVelocityTracker, 0);
-//					mCallback.onFlingSwipe(mSwipeView, ev.getX() - downX >);
+					mCallback.onFlingSwipe(mSwipeView, ev.getX(), vx);
 					mSwipe = false;
 					mSwipeView = null;
 				}
 				break;
-			case MotionEvent.ACTION_MOVE://this runs if swiping
+			case MotionEvent.ACTION_CANCEL:
+				if (mSwipe && mSwipeView != null) mCallback.onCancelSwipe(mSwipeView, ev.getX());
+				break;
+			case MotionEvent.ACTION_MOVE://this runs if swiping (swipe check not needed)
 				mVelocityTracker.addMovement(ev);
 				if (mSwipeView != null) {
 					mCallback.onDragSwipe(mSwipeView, ev.getX() - downX);
 				}
 				break;
 		}
-
-
 	}
 
 }
