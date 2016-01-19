@@ -1,5 +1,7 @@
 package su.j2e.rvtest;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
@@ -54,13 +56,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyVh> implements S
 
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	@Override
-	public void onFlingSwipe(View view, float dx, float vx) {
+	public void onFlingSwipe(final View view, float dx, float vx) {
 
 		if (Math.abs(vx) > minSwipeVelocity) {
 			int direction = vx > 0 ? 1 : -1;
 			float duration = avgSwipeAnimDuration * avgSwipeVelocity / Math.abs(vx);
 			view.animate().translationX(direction * view.getWidth())
-					.setDuration((long) duration).start();
+					.setDuration((long) duration).setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					notifyItemRemoved(mRecyclerView.getChildAdapterPosition(view));
+				}
+			}).start();
+
 		} else {
 			view.animate().translationX(0).setDuration(animCancelDuration).start();
 		}
